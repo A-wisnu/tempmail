@@ -39,12 +39,12 @@ export default function Home() {
     isVisible: false,
   });
 
-  const showToast = (message: string, type: 'success' | 'error') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type, isVisible: true });
     setTimeout(() => {
       setToast(prev => ({ ...prev, isVisible: false }));
     }, 3000);
-  };
+  }, []);
 
   const copyToClipboard = useCallback(async () => {
     try {
