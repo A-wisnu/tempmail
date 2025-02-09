@@ -5,6 +5,18 @@ interface Account {
   token: string;
 }
 
+interface ApiMessage {
+  id: string;
+  from: {
+    address: string;
+    name: string;
+  };
+  subject?: string;
+  text?: string;
+  html?: string | string[];
+  createdAt: string;
+}
+
 interface MailMessage {
   id: string;
   from: {
@@ -92,7 +104,7 @@ class MailService {
         throw new Error('Failed to get messages');
       }
 
-      return response.data.map((msg: any) => ({
+      return response.data.map((msg: ApiMessage) => ({
         id: msg.id,
         from: {
           address: msg.from.address,

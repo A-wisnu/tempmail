@@ -78,7 +78,7 @@ export default function Home() {
     }
   }, [email]);
 
-  const generateNewEmail = async () => {
+  const generateNewEmail = useCallback(async () => {
     try {
       setLoading(true);
       const account = await mailService.createAccount();
@@ -91,14 +91,13 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const checkMessages = async () => {
+  const checkMessages = useCallback(async () => {
     try {
       setRefreshing(true);
       const newMessages = await mailService.getMessages();
       
-      // Hanya tampilkan notifikasi jika jumlah pesan bertambah
       if (newMessages.length > lastMessageCountRef.current) {
         const newCount = newMessages.length - lastMessageCountRef.current;
         showToast(
@@ -115,7 +114,7 @@ export default function Home() {
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [showToast]);
 
   const handleMessageClick = async (message: Message) => {
     try {
@@ -157,7 +156,7 @@ export default function Home() {
     return () => {
       isSubscribed = false;
     };
-  }, []); // Hapus dependencies untuk menghindari re-run
+  }, [generateNewEmail, checkMessages]);
 
   return (
     <div className="container mx-auto px-4 py-8">
