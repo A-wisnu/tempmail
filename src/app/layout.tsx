@@ -41,6 +41,7 @@ export default function RootLayout({
       <head>
         <meta name="robots" content="index, follow" />
         <meta name="googlebot" content="index, follow" />
+        <meta name="google-site-verification" content="42PY9m2Dgsc9u4WVXMufmof34ehtK5cGg6Aj5JSH9uw" />
         <link rel="icon" href="/favicon.ico" />
         <Script
           async
