@@ -1,10 +1,10 @@
-# https://tempmail-alpha.vercel.app/robots.txt
+# https://tempmail.blogspot.com/robots.txt
 # Allow crawling of all content
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://tempmail-alpha.vercel.app/sitemap.xml
+Sitemap: https://tempmail.blogspot.com/sitemap.xml
 
 # Crawl-delay untuk bot
 Crawl-delay: 10
