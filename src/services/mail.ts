@@ -65,18 +65,40 @@ class MailService {
   async createAccount(): Promise<Account> {
     try {
       return await this.retryOperation(async () => {
+        console.log('Mencoba membuat akun baru...');
         const response = await this.mailjs.createOneAccount();
         
-        if (!response || !response.status || !response.data) {
-          throw new Error('Failed to create account');
+        console.log('Respon dari createOneAccount:', response);
+        
+        if (!response) {
+          throw new Error('Tidak ada respon dari server');
+        }
+
+        if (!response.status) {
+          throw new Error(`Status error: ${JSON.stringify(response)}`);
+        }
+
+        if (!response.data) {
+          throw new Error(`Tidak ada data dalam respon: ${JSON.stringify(response)}`);
         }
 
         const { username, password } = response.data;
         
+        console.log('Mencoba login dengan akun baru...');
         const loginResponse = await this.mailjs.login(username, password);
+        
+        console.log('Respon dari login:', loginResponse);
 
-        if (!loginResponse || !loginResponse.status || !loginResponse.data || !loginResponse.data.token) {
-          throw new Error('Failed to login');
+        if (!loginResponse) {
+          throw new Error('Tidak ada respon dari server saat login');
+        }
+
+        if (!loginResponse.status) {
+          throw new Error(`Status login error: ${JSON.stringify(loginResponse)}`);
+        }
+
+        if (!loginResponse.data || !loginResponse.data.token) {
+          throw new Error(`Token tidak ditemukan dalam respon login: ${JSON.stringify(loginResponse)}`);
         }
 
         this.token = loginResponse.data.token;
@@ -85,10 +107,13 @@ class MailService {
           address: username,
           token: this.token,
         };
-      });
+      }, 5, 2000); // Meningkatkan jumlah retry dan delay
     } catch (error) {
-      console.error('Error creating account:', error);
-      throw new Error('Gagal membuat akun email sementara. Silakan coba lagi nanti.');
+      console.error('Error detail saat membuat akun:', error);
+      if (error instanceof Error) {
+        throw new Error(`Gagal membuat akun email sementara: ${error.message}`);
+      }
+      throw new Error('Gagal membuat akun email sementara karena kesalahan yang tidak diketahui');
     }
   }
 
