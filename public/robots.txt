@@ -24,4 +24,17 @@ User-agent: MJ12bot
 Disallow: /
 
 User-agent: DotBot
-Disallow: / 
+Disallow: /
+
+# Block specific paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Allow useful files
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /manifest.json
+Allow: /*.js
+Allow: /*.css
+Allow: /images/ 
