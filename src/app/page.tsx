@@ -1,49 +1,277 @@
-import { Button } from "@/components/ui/button"
+'use client';
+
+import { motion } from 'framer-motion';
+import { FiCopy, FiRefreshCw, FiMail } from 'react-icons/fi';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { mailService } from '@/services/mail';
+import MessageModal from '@/components/MessageModal';
+import Toast from '@/components/Toast';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">TempMail Pro</h1>
-          <p className="text-gray-300 text-lg">Email sementara gratis untuk kebutuhan Anda</p>
-        </div>
+  const [email, setEmail] = useState<string>('');
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const lastMessageCountRef = useRef(0);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error';
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'success',
+    isVisible: false,
+  });
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type, isVisible: true });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, isVisible: false }));
+    }, 3000);
+  };
+
+  const copyToClipboard = useCallback(async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        // For modern browsers
+        await navigator.clipboard.writeText(email);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = email;
         
-        <div className="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-xl p-6">
-          <div className="flex flex-col space-y-4">
-            <div className="flex items-center space-x-2">
+        // Avoid scrolling to bottom
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.position = 'fixed';
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          textArea.remove();
+        } catch (err) {
+          console.error('Fallback: Oops, unable to copy', err);
+          throw new Error('Gagal menyalin teks');
+        }
+      }
+      showToast('Email berhasil disalin ke clipboard', 'success');
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      showToast('Gagal menyalin email', 'error');
+    }
+  }, [email]);
+
+  const generateNewEmail = async () => {
+    try {
+      setLoading(true);
+      const account = await mailService.createAccount();
+      setEmail(account.address);
+      setMessages([]);
+      showToast('Email baru berhasil dibuat', 'success');
+    } catch (error) {
+      console.error('Error generating email:', error);
+      showToast('Gagal membuat email baru', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkMessages = async () => {
+    try {
+      setRefreshing(true);
+      const newMessages = await mailService.getMessages();
+      
+      // Hanya tampilkan notifikasi jika jumlah pesan bertambah
+      if (newMessages.length > lastMessageCountRef.current) {
+        const newCount = newMessages.length - lastMessageCountRef.current;
+        showToast(
+          `${newCount} pesan baru masuk${newCount > 1 ? '' : ''}`, 
+          'success'
+        );
+      }
+      
+      lastMessageCountRef.current = newMessages.length;
+      setMessages(newMessages);
+    } catch (error) {
+      console.error('Error checking messages:', error);
+      showToast('Gagal memperbarui pesan', 'error');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleMessageClick = async (message: any) => {
+    try {
+      const fullMessage = await mailService.getMessage(message.id);
+      setSelectedMessage(fullMessage);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error getting message details:', error);
+      showToast('Gagal memuat detail pesan', 'error');
+    }
+  };
+
+  useEffect(() => {
+    generateNewEmail();
+
+    const cleanup = mailService.setupEventListeners(() => {
+      checkMessages();
+    });
+
+    // Ubah interval menjadi 5 detik agar tidak terlalu sering
+    const interval = setInterval(checkMessages, 5000);
+
+    return () => {
+      cleanup();
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-12"
+      >
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">TempMail</h1>
+        <p className="text-gray-600">Buat email sementara dengan mudah</p>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto">
+        {/* Email Generator Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-lg p-6 mb-8"
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 bg-gray-50 rounded-lg p-4 flex items-center">
+              <FiMail className="text-gray-400 mr-3" size={20} />
               <input
                 type="text"
-                className="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-                placeholder="your-email"
                 readOnly
+                value={loading ? 'Membuat email...' : email}
+                className="bg-transparent w-full outline-none text-gray-700"
               />
-              <span className="text-white">@tempmail.pro</span>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-              >
-                Copy
-              </Button>
-              <Button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-              >
-                Refresh
-              </Button>
             </div>
-            
-            <div className="bg-gray-700 rounded-lg p-4 min-h-[400px]">
-              <div className="text-gray-300 text-center">
-                <p>Belum ada email yang diterima</p>
-                <p className="text-sm">Email yang masuk akan muncul di sini secara otomatis</p>
-              </div>
-            </div>
+            <button 
+              onClick={copyToClipboard}
+              disabled={loading || !email}
+              className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Salin email"
+            >
+              <FiCopy size={20} />
+            </button>
+            <button 
+              onClick={generateNewEmail}
+              disabled={loading}
+              className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Buat email baru"
+            >
+              <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+            </button>
           </div>
-        </div>
 
-        <div className="mt-8 text-center text-gray-400">
-          <p>© 2024 TempMail Pro. Semua hak cipta dilindungi.</p>
-        </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-gray-50 rounded-lg p-4 text-center"
+            >
+              <h3 className="text-sm text-gray-500 mb-1">Pesan</h3>
+              <p className="text-2xl font-semibold text-gray-800">{messages.length}</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="bg-gray-50 rounded-lg p-4 text-center"
+            >
+              <h3 className="text-sm text-gray-500 mb-1">Penyimpanan</h3>
+              <p className="text-2xl font-semibold text-gray-800">0 MB</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="bg-gray-50 rounded-lg p-4 text-center"
+            >
+              <h3 className="text-sm text-gray-500 mb-1">Berlaku Sampai</h3>
+              <p className="text-2xl font-semibold text-gray-800">24j</p>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Inbox Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-white rounded-2xl shadow-lg p-6"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">Kotak Masuk</h2>
+            <button
+              onClick={checkMessages}
+              disabled={refreshing}
+              className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              title="Perbarui pesan"
+            >
+              <FiRefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+              <span className="text-sm">Perbarui</span>
+            </button>
+          </div>
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-500 py-12">
+              <FiMail size={48} className="mx-auto mb-4 text-gray-300" />
+              <p>Belum ada pesan</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message: any) => (
+                <div
+                  key={message.id}
+                  onClick={() => handleMessageClick(message)}
+                  className="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium text-gray-800">{message.from.address}</h3>
+                    <span className="text-sm text-gray-500">
+                      {new Date(message.createdAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm">{message.subject}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
-    </main>
-  )
+
+      <MessageModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message={selectedMessage}
+      />
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
+    </div>
+  );
 }
