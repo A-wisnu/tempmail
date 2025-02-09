@@ -23,10 +23,12 @@ export default function Home() {
   const [email, setEmail] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const lastMessageCountRef = useRef(0);
+  const initAttemptedRef = useRef(false);
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error';
@@ -81,12 +83,14 @@ export default function Home() {
   const generateNewEmail = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const account = await mailService.createAccount();
       setEmail(account.address);
       setMessages([]);
       showToast('Email baru berhasil dibuat', 'success');
     } catch (error) {
       console.error('Error generating email:', error);
+      setError('Gagal membuat email baru. Silakan coba lagi nanti.');
       showToast('Gagal membuat email baru', 'error');
     } finally {
       setLoading(false);
@@ -128,34 +132,29 @@ export default function Home() {
   };
 
   useEffect(() => {
-    let isSubscribed = true;
-
+    if (initAttemptedRef.current) return; // Hanya coba sekali
+    
     const init = async () => {
       try {
+        initAttemptedRef.current = true;
         await generateNewEmail();
-        if (isSubscribed) {
-          const cleanup = mailService.setupEventListeners(() => {
-            checkMessages();
-          });
+        
+        const cleanup = mailService.setupEventListeners(() => {
+          checkMessages();
+        });
 
-          const interval = setInterval(checkMessages, 5000);
+        const interval = setInterval(checkMessages, 5000);
 
-          return () => {
-            cleanup();
-            clearInterval(interval);
-          };
-        }
+        return () => {
+          cleanup();
+          clearInterval(interval);
+        };
       } catch (error) {
         console.error('Failed to initialize:', error);
-        // Jika gagal, jangan coba lagi secara otomatis
       }
     };
 
     init();
-
-    return () => {
-      isSubscribed = false;
-    };
   }, [generateNewEmail, checkMessages]);
 
   return (
@@ -170,6 +169,21 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-gray-800 mb-4">TempMail</h1>
         <p className="text-gray-600">Buat email sementara dengan mudah</p>
       </motion.div>
+
+      {error && (
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            <p>{error}</p>
+            <button
+              onClick={generateNewEmail}
+              disabled={loading}
+              className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto">
