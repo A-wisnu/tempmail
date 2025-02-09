@@ -6,7 +6,7 @@ import AdSenseWrapper from '@/components/AdSenseWrapper';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mailminute.blogspot.com'),
+  metadataBase: new URL('https://tempmail-alpha.vercel.app'),
   title: "TempMail - Free Temporary Email | Create Disposable Email",
   description: "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
   keywords: "temporary email, disposable email, temp mail, free email, tempmail, temporary mail, disposable mail, one-time email, free temporary email, temporary email no registration, anonymous email",
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "TempMail - Free Temporary Email | Create Disposable Email",
     description: "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
-    url: "https://mailminute.blogspot.com",
+    url: "https://tempmail-alpha.vercel.app",
     siteName: "TempMail",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://mailminute.blogspot.com/images/og-image.webp",
+        url: "https://tempmail-alpha.vercel.app/images/og-image.webp",
         width: 1200,
         height: 630,
         alt: "TempMail - Free Temporary Email Service",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TempMail - Free Temporary Email",
     description: "Create free temporary email quickly and easily. Protect your privacy from spam.",
-    images: ["https://mailminute.blogspot.com/images/og-image.webp"],
+    images: ["https://tempmail-alpha.vercel.app/images/og-image.webp"],
     creator: "@tempmail",
     site: "@tempmail",
   },
@@ -77,9 +77,9 @@ export const metadata: Metadata = {
     google: "googlea28ca0647bea5795",
   },
   alternates: {
-    canonical: "https://mailminute.blogspot.com",
+    canonical: "https://tempmail-alpha.vercel.app",
     languages: {
-      'en-US': 'https://mailminute.blogspot.com',
+      'en-US': 'https://tempmail-alpha.vercel.app',
     },
   },
   category: 'technology',
@@ -102,8 +102,8 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#0ea5e9" />
         <meta name="msapplication-TileColor" content="#0ea5e9" />
-        <meta property="og:image" content="https://mailminute.blogspot.com/images/og-image.webp" />
-        <meta property="twitter:image" content="https://mailminute.blogspot.com/images/og-image.webp" />
+        <meta property="og:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
+        <meta property="twitter:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <link rel="manifest" href="/manifest.json" />
         
         {/* Schema.org markup */}
@@ -114,7 +114,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               "name": "TempMail - Free Temporary Email",
-              "url": "https://mailminute.blogspot.com",
+              "url": "https://tempmail-alpha.vercel.app",
               "description": "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
               "applicationCategory": "UtilityApplication",
               "operatingSystem": "Any",
