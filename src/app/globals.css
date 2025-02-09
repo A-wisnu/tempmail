@@ -19,3 +19,30 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* AdSense Styles */
+.ad-container {
+  min-height: 100px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(14, 165, 233, 0.1);
+}
+
+.ad-container:hover {
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.1), 0 2px 4px -1px rgba(14, 165, 233, 0.06);
+}
+
+/* Responsive ad container */
+@media (max-width: 768px) {
+  .ad-container {
+    min-height: 60px;
+  }
+}
+
+/* Hide ad container when empty */
+.ad-container:empty {
+  display: none;
+}

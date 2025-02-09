@@ -8,6 +8,7 @@ import MessageModal from '@/components/MessageModal';
 import Toast from '@/components/Toast';
 import CountdownTimer from '@/components/CountdownTimer';
 import dynamic from 'next/dynamic';
+import AdUnit from '@/components/AdUnit';
 
 const RainEffect = dynamic(() => import('@/components/RainEffect'), {
   ssr: false
@@ -56,89 +57,76 @@ export default function Home() {
   const copyToClipboard = useCallback(async () => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
-        // For modern browsers
         await navigator.clipboard.writeText(email);
       } else {
-        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         textArea.value = email;
-        
-        // Avoid scrolling to bottom
         textArea.style.top = '0';
         textArea.style.left = '0';
         textArea.style.position = 'fixed';
-        
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
         try {
           document.execCommand('copy');
           textArea.remove();
         } catch (err) {
-          console.error('Fallback: Oops, unable to copy', err);
-          throw new Error('Gagal menyalin teks');
+          console.error('Fallback: Unable to copy', err);
+          throw new Error('Failed to copy text');
         }
       }
-      showToast('Email berhasil disalin ke clipboard', 'success');
+      showToast('Email copied to clipboard', 'success');
     } catch (error) {
       console.error('Failed to copy:', error);
-      showToast('Gagal menyalin email', 'error');
+      showToast('Failed to copy email', 'error');
     }
-  }, [email]);
+  }, [email, showToast]);
 
   const generateNewEmail = useCallback(async () => {
     let mounted = true;
-    
     try {
       setLoading(true);
       setError(null);
       const account = await mailService.createAccount();
-      
       if (!mounted) return;
-      
       setEmail(account.address);
       setMessages([]);
-      // Set waktu kedaluwarsa 24 jam dari sekarang
       const expiry = new Date();
       expiry.setHours(expiry.getHours() + 24);
       setExpiryTime(expiry);
-      showToast('Email baru berhasil dibuat', 'success');
+      showToast('New email created successfully', 'success');
     } catch (error) {
       console.error('Error generating email:', error);
       if (mounted) {
-        setError('Gagal membuat email baru. Silakan coba lagi nanti.');
-        showToast('Gagal membuat email baru', 'error');
+        setError('Failed to create new email. Please try again later.');
+        showToast('Failed to create new email', 'error');
       }
     } finally {
       if (mounted) {
         setLoading(false);
       }
     }
-
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [showToast]);
 
   const checkMessages = useCallback(async () => {
     try {
       setRefreshing(true);
       const newMessages = await mailService.getMessages();
-      
       if (newMessages.length > lastMessageCountRef.current) {
         const newCount = newMessages.length - lastMessageCountRef.current;
         showToast(
-          `${newCount} pesan baru masuk${newCount > 1 ? '' : ''}`, 
+          `${newCount} new message${newCount > 1 ? 's' : ''} received`,
           'success'
         );
       }
-      
       lastMessageCountRef.current = newMessages.length;
       setMessages(newMessages);
     } catch (error) {
       console.error('Error checking messages:', error);
-      showToast('Gagal memperbarui pesan', 'error');
+      showToast('Failed to refresh messages', 'error');
     } finally {
       setRefreshing(false);
     }
@@ -151,7 +139,7 @@ export default function Home() {
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error getting message details:', error);
-      showToast('Gagal memuat detail pesan', 'error');
+      showToast('Failed to load message details', 'error');
     }
   };
 
@@ -182,7 +170,7 @@ export default function Home() {
       } catch (error) {
         console.error('Failed to initialize:', error);
         if (mounted) {
-          setError('Gagal membuat email. Silakan refresh halaman atau coba lagi nanti.');
+          setError('Failed to create email. Please refresh the page or try again later.');
         }
       }
     };
@@ -207,15 +195,24 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12 relative"
         >
-          <h1 className="text-4xl font-bold text-sky-800 mb-4 drop-shadow-lg">TempMail - Email Sementara Gratis</h1>
-          <p className="text-sky-600">Buat email sementara dengan mudah dan cepat, tanpa registrasi</p>
+          <h1 className="text-4xl font-bold text-sky-800 mb-4 drop-shadow-lg">TempMail - Free Temporary Email</h1>
+          <p className="text-sky-600">Create temporary email quickly and easily, no registration required</p>
           <div className="mt-4 text-sm text-sky-500">
-            <p>✨ Lindungi privasi Anda dari spam</p>
-            <p>⚡ Langsung pakai tanpa daftar</p>
-            <p>🔒 Aman dan gratis selamanya</p>
+            <p>✨ Protect your privacy from spam</p>
+            <p>⚡ Instant access, no registration</p>
+            <p>🔒 Secure and free forever</p>
           </div>
         </motion.div>
       </header>
+
+      {/* Top Ad Unit */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <AdUnit 
+          slot="5891441548"
+          format="horizontal"
+          style={{ display: 'block', textAlign: 'center' }}
+        />
+      </div>
 
       {error && (
         <div role="alert" className="max-w-4xl mx-auto mb-8">
@@ -226,7 +223,7 @@ export default function Home() {
               disabled={loading}
               className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
             >
-              Coba Lagi
+              Try Again
             </button>
           </div>
         </div>
@@ -235,7 +232,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto">
         {/* Email Generator Section */}
-        <section aria-label="Pembuat Email Sementara">
+        <section aria-label="Temporary Email Generator">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -248,7 +245,7 @@ export default function Home() {
                 <input
                   type="text"
                   readOnly
-                  value={loading ? 'Membuat email...' : email}
+                  value={loading ? 'Creating email...' : email}
                   className="bg-transparent w-full outline-none text-sky-700"
                 />
               </div>
@@ -256,7 +253,7 @@ export default function Home() {
                 onClick={copyToClipboard}
                 disabled={loading || !email}
                 className="p-3 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95"
-                title="Salin email"
+                title="Copy email"
               >
                 <FiCopy size={20} />
               </button>
@@ -264,7 +261,7 @@ export default function Home() {
                 onClick={generateNewEmail}
                 disabled={loading}
                 className="p-3 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95"
-                title="Buat email baru"
+                title="Create new email"
               >
                 <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
               </button>
@@ -278,7 +275,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md"
               >
-                <h3 className="text-sm text-sky-600 mb-1">Pesan</h3>
+                <h3 className="text-sm text-sky-600 mb-1">Messages</h3>
                 <p className="text-2xl font-semibold text-sky-700">{messages.length}</p>
               </motion.div>
               <motion.div
@@ -287,7 +284,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md"
               >
-                <h3 className="text-sm text-sky-600 mb-1">Penyimpanan</h3>
+                <h3 className="text-sm text-sky-600 mb-1">Storage</h3>
                 <p className="text-2xl font-semibold text-sky-700">0 MB</p>
               </motion.div>
               <motion.div
@@ -296,13 +293,13 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md relative overflow-hidden"
               >
-                <h3 className="text-sm text-sky-600 mb-1">Berlaku Sampai</h3>
+                <h3 className="text-sm text-sky-600 mb-1">Valid Until</h3>
                 {expiryTime && (
                   <CountdownTimer 
                     expiryTime={expiryTime} 
                     onExpire={() => {
-                      setError('Email sudah kedaluwarsa. Silakan buat email baru.');
-                      showToast('Email sudah kedaluwarsa', 'error');
+                      setError('Email has expired. Please create a new one.');
+                      showToast('Email has expired', 'error');
                     }}
                   />
                 )}
@@ -311,8 +308,15 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Inbox Section */}
-        <section aria-label="Kotak Masuk Email">
+        {/* Middle Ad Unit */}
+        <AdUnit 
+          slot="7368174745"
+          format="rectangle"
+          style={{ display: 'block', margin: '2rem auto' }}
+        />
+
+        {/* Messages Section */}
+        <section aria-label="Message List">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -320,21 +324,21 @@ export default function Home() {
             className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 border border-sky-100"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-sky-800">Kotak Masuk</h2>
+              <h2 className="text-xl font-semibold text-sky-800">Inbox</h2>
               <button
                 onClick={checkMessages}
                 disabled={refreshing}
                 className="p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95 flex items-center gap-2"
-                title="Perbarui pesan"
+                title="Refresh messages"
               >
                 <FiRefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-                <span className="text-sm">Perbarui</span>
+                <span className="text-sm">Refresh</span>
               </button>
             </div>
             {messages.length === 0 ? (
               <div className="text-center text-sky-500 py-12">
                 <FiMail size={48} className="mx-auto mb-4 text-sky-300" />
-                <p>Belum ada pesan</p>
+                <p>No messages yet</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -357,11 +361,20 @@ export default function Home() {
             )}
           </motion.div>
         </section>
+
+        {/* Bottom Ad Unit */}
+        <div className="mt-8">
+          <AdUnit 
+            slot="9644907942"
+            format="fluid"
+            style={{ display: 'block' }}
+          />
+        </div>
       </main>
 
       <footer className="mt-12 text-center text-sm text-sky-500">
-        <p>© {new Date().getFullYear()} TempMail - Email Sementara Gratis</p>
-        <p className="mt-2">Dibuat dengan ❤️ untuk melindungi privasi Anda</p>
+        <p>© {new Date().getFullYear()} TempMail - Free Temporary Email</p>
+        <p className="mt-2">Made with ❤️ to protect your privacy</p>
       </footer>
 
       <MessageModal

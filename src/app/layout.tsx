@@ -1,42 +1,74 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Script from 'next/script';
+import AdSenseWrapper from '@/components/AdSenseWrapper';
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TempMail - Email Sementara Gratis | Buat Email Temporary",
-  description: "Buat email sementara gratis dengan mudah dan cepat. Lindungi privasi Anda dengan email temporary. Tanpa registrasi, langsung pakai!",
-  keywords: "email sementara, temporary email, email temporary, disposable email, email gratis, tempmail, temp mail, email sekali pakai, buat email sementara, email temporary indonesia, email disposable indonesia",
+  metadataBase: new URL('https://tempmail-alpha.vercel.app'),
+  title: "TempMail - Free Temporary Email | Create Disposable Email",
+  description: "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
+  keywords: "temporary email, disposable email, temp mail, free email, tempmail, temporary mail, disposable mail, one-time email, free temporary email, temporary email no registration, anonymous email",
   authors: [{ name: "TempMail" }],
   creator: "TempMail",
   publisher: "TempMail",
+  applicationName: "TempMail",
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'apple-touch-icon',
+        url: '/icon-192.png',
+      },
+    ],
+  },
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
-    title: "TempMail - Email Sementara Gratis | Buat Email Temporary",
-    description: "Buat email sementara gratis dengan mudah dan cepat. Lindungi privasi Anda dengan email temporary. Tanpa registrasi, langsung pakai!",
+    title: "TempMail - Free Temporary Email | Create Disposable Email",
+    description: "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
     url: "https://tempmail-alpha.vercel.app",
     siteName: "TempMail",
-    locale: "id_ID",
+    locale: "en_US",
     type: "website",
     images: [
       {
         url: "https://tempmail-alpha.vercel.app/images/og-image.webp",
         width: 1200,
         height: 630,
-        alt: "TempMail - Email Sementara Gratis",
+        alt: "TempMail - Free Temporary Email Service",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TempMail - Email Sementara Gratis",
-    description: "Buat email sementara gratis dengan mudah dan cepat. Lindungi privasi Anda dengan email temporary.",
+    title: "TempMail - Free Temporary Email",
+    description: "Create free temporary email quickly and easily. Protect your privacy from spam.",
     images: ["https://tempmail-alpha.vercel.app/images/og-image.webp"],
     creator: "@tempmail",
     site: "@tempmail",
@@ -46,7 +78,12 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://tempmail-alpha.vercel.app",
+    languages: {
+      'en-US': 'https://tempmail-alpha.vercel.app',
+    },
   },
+  category: 'technology',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -55,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <head>
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
@@ -67,37 +104,34 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#0ea5e9" />
         <meta property="og:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <meta property="twitter:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
-        <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
-        <link rel="icon" type="image/webp" sizes="192x192" href="/images/icon-192.webp" />
-        <link rel="icon" type="image/webp" sizes="512x512" href="/images/icon-512.webp" />
-        <link rel="apple-touch-icon" href="/images/icon-180.webp" />
         <link rel="manifest" href="/manifest.json" />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX`}
-        />
-        <Script
-          id="google-analytics-config"
-          strategy="afterInteractive"
+        
+        {/* Schema.org markup */}
+        <script
+          type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-XXXXXXXX');
-            `,
-          }}
-        />
-        <Script
-          id="adsense"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8085996511215136"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-          onError={(e) => {
-            console.error('AdSense script failed to load', e);
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "TempMail - Free Temporary Email",
+              "url": "https://tempmail-alpha.vercel.app",
+              "description": "Create free temporary email quickly and easily. Protect your privacy from spam. No registration required, instant access!",
+              "applicationCategory": "UtilityApplication",
+              "operatingSystem": "Any",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "featureList": [
+                "Free temporary email",
+                "No registration required",
+                "Privacy protection",
+                "Easy to use",
+                "Instant access",
+                "Spam protection"
+              ]
+            })
           }}
         />
       </head>
@@ -105,6 +139,7 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+        <AdSenseWrapper />
       </body>
     </html>
   );
