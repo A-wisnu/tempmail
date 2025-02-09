@@ -7,6 +7,11 @@ import { mailService } from '@/services/mail';
 import MessageModal from '@/components/MessageModal';
 import Toast from '@/components/Toast';
 import CountdownTimer from '@/components/CountdownTimer';
+import dynamic from 'next/dynamic';
+
+const RainEffect = dynamic(() => import('@/components/RainEffect'), {
+  ssr: false
+});
 
 interface Message {
   id: string;
@@ -191,21 +196,30 @@ export default function Home() {
   }, [generateNewEmail, checkMessages]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 relative min-h-screen bg-gradient-to-b from-sky-100 to-blue-50">
+      <RainEffect />
+
       {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-12"
-      >
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">TempMail</h1>
-        <p className="text-gray-600">Buat email sementara dengan mudah</p>
-      </motion.div>
+      <header>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12 relative"
+        >
+          <h1 className="text-4xl font-bold text-sky-800 mb-4 drop-shadow-lg">TempMail - Email Sementara Gratis</h1>
+          <p className="text-sky-600">Buat email sementara dengan mudah dan cepat, tanpa registrasi</p>
+          <div className="mt-4 text-sm text-sky-500">
+            <p>✨ Lindungi privasi Anda dari spam</p>
+            <p>⚡ Langsung pakai tanpa daftar</p>
+            <p>🔒 Aman dan gratis selamanya</p>
+          </div>
+        </motion.div>
+      </header>
 
       {error && (
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        <div role="alert" className="max-w-4xl mx-auto mb-8">
+          <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-lg p-4 text-red-700 shadow-lg">
             <p>{error}</p>
             <button
               onClick={generateNewEmail}
@@ -219,127 +233,136 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto">
+      <main className="max-w-4xl mx-auto">
         {/* Email Generator Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg p-6 mb-8"
-        >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 bg-gray-50 rounded-lg p-4 flex items-center">
-              <FiMail className="text-gray-400 mr-3" size={20} />
-              <input
-                type="text"
-                readOnly
-                value={loading ? 'Membuat email...' : email}
-                className="bg-transparent w-full outline-none text-gray-700"
-              />
-            </div>
-            <button 
-              onClick={copyToClipboard}
-              disabled={loading || !email}
-              className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Salin email"
-            >
-              <FiCopy size={20} />
-            </button>
-            <button 
-              onClick={generateNewEmail}
-              disabled={loading}
-              className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Buat email baru"
-            >
-              <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-gray-50 rounded-lg p-4 text-center"
-            >
-              <h3 className="text-sm text-gray-500 mb-1">Pesan</h3>
-              <p className="text-2xl font-semibold text-gray-800">{messages.length}</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="bg-gray-50 rounded-lg p-4 text-center"
-            >
-              <h3 className="text-sm text-gray-500 mb-1">Penyimpanan</h3>
-              <p className="text-2xl font-semibold text-gray-800">0 MB</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="bg-gray-50 rounded-lg p-4 text-center relative overflow-hidden"
-            >
-              <h3 className="text-sm text-gray-500 mb-1">Berlaku Sampai</h3>
-              {expiryTime && (
-                <CountdownTimer 
-                  expiryTime={expiryTime} 
-                  onExpire={() => {
-                    setError('Email sudah kedaluwarsa. Silakan buat email baru.');
-                    showToast('Email sudah kedaluwarsa', 'error');
-                  }}
+        <section aria-label="Pembuat Email Sementara">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 mb-8 border border-sky-100"
+          >
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 bg-sky-50/80 backdrop-blur rounded-lg p-4 flex items-center border border-sky-100">
+                <FiMail className="text-sky-400 mr-3" size={20} />
+                <input
+                  type="text"
+                  readOnly
+                  value={loading ? 'Membuat email...' : email}
+                  className="bg-transparent w-full outline-none text-sky-700"
                 />
-              )}
-            </motion.div>
-          </div>
-        </motion.div>
+              </div>
+              <button 
+                onClick={copyToClipboard}
+                disabled={loading || !email}
+                className="p-3 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95"
+                title="Salin email"
+              >
+                <FiCopy size={20} />
+              </button>
+              <button 
+                onClick={generateNewEmail}
+                disabled={loading}
+                className="p-3 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95"
+                title="Buat email baru"
+              >
+                <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md"
+              >
+                <h3 className="text-sm text-sky-600 mb-1">Pesan</h3>
+                <p className="text-2xl font-semibold text-sky-700">{messages.length}</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md"
+              >
+                <h3 className="text-sm text-sky-600 mb-1">Penyimpanan</h3>
+                <p className="text-2xl font-semibold text-sky-700">0 MB</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md relative overflow-hidden"
+              >
+                <h3 className="text-sm text-sky-600 mb-1">Berlaku Sampai</h3>
+                {expiryTime && (
+                  <CountdownTimer 
+                    expiryTime={expiryTime} 
+                    onExpire={() => {
+                      setError('Email sudah kedaluwarsa. Silakan buat email baru.');
+                      showToast('Email sudah kedaluwarsa', 'error');
+                    }}
+                  />
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
 
         {/* Inbox Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-white rounded-2xl shadow-lg p-6"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Kotak Masuk</h2>
-            <button
-              onClick={checkMessages}
-              disabled={refreshing}
-              className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              title="Perbarui pesan"
-            >
-              <FiRefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-              <span className="text-sm">Perbarui</span>
-            </button>
-          </div>
-          {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-12">
-              <FiMail size={48} className="mx-auto mb-4 text-gray-300" />
-              <p>Belum ada pesan</p>
+        <section aria-label="Kotak Masuk Email">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-6 border border-sky-100"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-sky-800">Kotak Masuk</h2>
+              <button
+                onClick={checkMessages}
+                disabled={refreshing}
+                className="p-2 bg-sky-50 text-sky-600 rounded-lg hover:bg-sky-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95 flex items-center gap-2"
+                title="Perbarui pesan"
+              >
+                <FiRefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+                <span className="text-sm">Perbarui</span>
+              </button>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {messages.map((message: Message) => (
-                <div
-                  key={message.id}
-                  onClick={() => handleMessageClick(message)}
-                  className="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-gray-800">{message.from.address}</h3>
-                    <span className="text-sm text-gray-500">
-                      {new Date(message.createdAt).toLocaleTimeString()}
-                    </span>
+            {messages.length === 0 ? (
+              <div className="text-center text-sky-500 py-12">
+                <FiMail size={48} className="mx-auto mb-4 text-sky-300" />
+                <p>Belum ada pesan</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message: Message) => (
+                  <div
+                    key={message.id}
+                    onClick={() => handleMessageClick(message)}
+                    className="p-4 border border-sky-100 rounded-lg hover:bg-sky-50/50 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-medium text-sky-800">{message.from.address}</h3>
+                      <span className="text-sm text-sky-500">
+                        {new Date(message.createdAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <p className="text-sky-600 text-sm">{message.subject}</p>
                   </div>
-                  <p className="text-gray-600 text-sm">{message.subject}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </section>
+      </main>
+
+      <footer className="mt-12 text-center text-sm text-sky-500">
+        <p>© {new Date().getFullYear()} TempMail - Email Sementara Gratis</p>
+        <p className="mt-2">Dibuat dengan ❤️ untuk melindungi privasi Anda</p>
+      </footer>
 
       <MessageModal
         isOpen={isModalOpen}
