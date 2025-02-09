@@ -81,20 +81,33 @@ export default function Home() {
   }, [email]);
 
   const generateNewEmail = useCallback(async () => {
+    let mounted = true;
+    
     try {
       setLoading(true);
       setError(null);
       const account = await mailService.createAccount();
+      
+      if (!mounted) return;
+      
       setEmail(account.address);
       setMessages([]);
       showToast('Email baru berhasil dibuat', 'success');
     } catch (error) {
       console.error('Error generating email:', error);
-      setError('Gagal membuat email baru. Silakan coba lagi nanti.');
-      showToast('Gagal membuat email baru', 'error');
+      if (mounted) {
+        setError('Gagal membuat email baru. Silakan coba lagi nanti.');
+        showToast('Gagal membuat email baru', 'error');
+      }
     } finally {
-      setLoading(false);
+      if (mounted) {
+        setLoading(false);
+      }
     }
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const checkMessages = useCallback(async () => {
@@ -132,29 +145,43 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (initAttemptedRef.current) return; // Hanya coba sekali
+    if (initAttemptedRef.current) return;
     
+    let mounted = true;
+    let interval: NodeJS.Timeout;
+
     const init = async () => {
       try {
         initAttemptedRef.current = true;
+        if (!mounted) return;
+
         await generateNewEmail();
         
+        if (!mounted) return;
+
         const cleanup = mailService.setupEventListeners(() => {
-          checkMessages();
+          if (mounted) checkMessages();
         });
 
-        const interval = setInterval(checkMessages, 5000);
+        interval = setInterval(() => {
+          if (mounted) checkMessages();
+        }, 5000);
 
-        return () => {
-          cleanup();
-          clearInterval(interval);
-        };
+        return cleanup;
       } catch (error) {
         console.error('Failed to initialize:', error);
+        if (mounted) {
+          setError('Gagal membuat email. Silakan refresh halaman atau coba lagi nanti.');
+        }
       }
     };
 
     init();
+
+    return () => {
+      mounted = false;
+      if (interval) clearInterval(interval);
+    };
   }, [generateNewEmail, checkMessages]);
 
   return (
