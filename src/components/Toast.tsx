@@ -5,10 +5,9 @@ interface ToastProps {
   message: string;
   type: 'success' | 'error';
   isVisible: boolean;
-  onClose: () => void;
 }
 
-export default function Toast({ message, type, isVisible, onClose }: ToastProps) {
+export default function Toast({ message, type, isVisible }: ToastProps) {
   return (
     <AnimatePresence>
       {isVisible && (

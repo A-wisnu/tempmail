@@ -7,11 +7,23 @@ import { mailService } from '@/services/mail';
 import MessageModal from '@/components/MessageModal';
 import Toast from '@/components/Toast';
 
+interface Message {
+  id: string;
+  from: {
+    address: string;
+    name: string;
+  };
+  subject: string;
+  text: string;
+  html: string;
+  createdAt: string;
+}
+
 export default function Home() {
   const [email, setEmail] = useState<string>('');
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const lastMessageCountRef = useRef(0);
@@ -105,7 +117,7 @@ export default function Home() {
     }
   };
 
-  const handleMessageClick = async (message: any) => {
+  const handleMessageClick = async (message: Message) => {
     try {
       const fullMessage = await mailService.getMessage(message.id);
       setSelectedMessage(fullMessage);
@@ -117,20 +129,35 @@ export default function Home() {
   };
 
   useEffect(() => {
-    generateNewEmail();
+    let isSubscribed = true;
 
-    const cleanup = mailService.setupEventListeners(() => {
-      checkMessages();
-    });
+    const init = async () => {
+      try {
+        await generateNewEmail();
+        if (isSubscribed) {
+          const cleanup = mailService.setupEventListeners(() => {
+            checkMessages();
+          });
 
-    // Ubah interval menjadi 5 detik agar tidak terlalu sering
-    const interval = setInterval(checkMessages, 5000);
+          const interval = setInterval(checkMessages, 5000);
+
+          return () => {
+            cleanup();
+            clearInterval(interval);
+          };
+        }
+      } catch (error) {
+        console.error('Failed to initialize:', error);
+        // Jika gagal, jangan coba lagi secara otomatis
+      }
+    };
+
+    init();
 
     return () => {
-      cleanup();
-      clearInterval(interval);
+      isSubscribed = false;
     };
-  }, []);
+  }, []); // Hapus dependencies untuk menghindari re-run
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -240,7 +267,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="space-y-4">
-              {messages.map((message: any) => (
+              {messages.map((message: Message) => (
                 <div
                   key={message.id}
                   onClick={() => handleMessageClick(message)}
@@ -270,7 +297,6 @@ export default function Home() {
         message={toast.message}
         type={toast.type}
         isVisible={toast.isVisible}
-        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
       />
     </div>
   );

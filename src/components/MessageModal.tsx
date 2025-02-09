@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMail, FiClock, FiUser } from 'react-icons/fi';
+import { FiX, FiClock, FiUser } from 'react-icons/fi';
 
 interface MessageModalProps {
   isOpen: boolean;
