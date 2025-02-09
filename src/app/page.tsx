@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { mailService } from '@/services/mail';
 import MessageModal from '@/components/MessageModal';
 import Toast from '@/components/Toast';
+import CountdownTimer from '@/components/CountdownTimer';
 
 interface Message {
   id: string;
@@ -38,6 +39,7 @@ export default function Home() {
     type: 'success',
     isVisible: false,
   });
+  const [expiryTime, setExpiryTime] = useState<Date | null>(null);
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type, isVisible: true });
@@ -92,6 +94,10 @@ export default function Home() {
       
       setEmail(account.address);
       setMessages([]);
+      // Set waktu kedaluwarsa 24 jam dari sekarang
+      const expiry = new Date();
+      expiry.setHours(expiry.getHours() + 24);
+      setExpiryTime(expiry);
       showToast('Email baru berhasil dibuat', 'success');
     } catch (error) {
       console.error('Error generating email:', error);
@@ -273,10 +279,18 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="bg-gray-50 rounded-lg p-4 text-center"
+              className="bg-gray-50 rounded-lg p-4 text-center relative overflow-hidden"
             >
               <h3 className="text-sm text-gray-500 mb-1">Berlaku Sampai</h3>
-              <p className="text-2xl font-semibold text-gray-800">24j</p>
+              {expiryTime && (
+                <CountdownTimer 
+                  expiryTime={expiryTime} 
+                  onExpire={() => {
+                    setError('Email sudah kedaluwarsa. Silakan buat email baru.');
+                    showToast('Email sudah kedaluwarsa', 'error');
+                  }}
+                />
+              )}
             </motion.div>
           </div>
         </motion.div>
