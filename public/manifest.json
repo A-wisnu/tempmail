@@ -2,7 +2,7 @@
   "name": "TempMail - Free Temporary Email",
   "short_name": "TempMail",
   "description": "Create free temporary email quickly and easily. Protect your privacy from spam.",
-  "start_url": "https://tempmail.blogspot.com",
+  "start_url": "https://mailminute.blogspot.com",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#0ea5e9",
@@ -24,6 +24,6 @@
     }
   ],
   "orientation": "portrait",
-  "scope": "https://tempmail.blogspot.com",
+  "scope": "https://mailminute.blogspot.com",
   "lang": "en-US"
 } 
