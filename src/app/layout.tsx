@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import AdSenseWrapper from '@/components/AdSenseWrapper';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -105,6 +106,15 @@ export default function RootLayout({
         <meta property="og:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <meta property="twitter:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <link rel="manifest" href="/manifest.json" />
+        
+        {/* AdSense Script */}
+        <Script
+          id="adsense-init"
+          strategy="afterInteractive"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8085996511215136"
+          crossOrigin="anonymous"
+        />
         
         {/* Schema.org markup */}
         <script
