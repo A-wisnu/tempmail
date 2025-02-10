@@ -2,7 +2,7 @@
 
 <div align="center">
   
-![TempMail Banner](public/images/og-image.webp)
+![TempMail Logo](public/icon-512.png)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FA-wisnu%2Ftempmail)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -23,13 +23,9 @@
 - 🔍 **SEO Optimized** - Better visibility in search results
 - 🛡️ **Secure** - Built with security in mind
 
-## 🎯 Demo
+## 🎯 Live Demo
 
 Check out the live demo: [TempMail Demo](https://tempmail-alpha.vercel.app)
-
-<div align="center">
-  <img src="public/icon-512.png" alt="TempMail Demo" width="200"/>
-</div>
 
 ## 🚀 Quick Start
 
@@ -67,6 +63,7 @@ npm run build
 ```
 tempmail/
 ├── public/              # Static files
+│   └── icons/          # App icons and images
 ├── src/
 │   ├── app/            # App routes
 │   ├── components/     # React components
