@@ -7,13 +7,6 @@ const nextConfig = {
   },
   // Asset handling
   assetPrefix: '',
-  // Turbo configuration
-  turbo: {
-    rules: {
-      '*.svg': ['@svgr/webpack'],
-      '*.{js,jsx,ts,tsx}': ['@next/eslint-plugin-next'],
-    },
-  },
   // Asset configuration
   webpack: (config) => {
     config.module.rules.push({
