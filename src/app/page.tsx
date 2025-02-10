@@ -34,6 +34,7 @@ export default function Home() {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [storageSize, setStorageSize] = useState(0);
   const lastMessageCountRef = useRef(0);
   const initAttemptedRef = useRef(false);
   const [toast, setToast] = useState<{
@@ -111,6 +112,19 @@ export default function Home() {
     };
   }, [showToast]);
 
+  const calculateStorageSize = (messages: Message[]) => {
+    const totalBytes = messages.reduce((acc, msg) => {
+      // Menghitung ukuran teks dalam bytes (1 karakter = 1 byte untuk ASCII)
+      const subjectSize = new Blob([msg.subject]).size;
+      const textSize = new Blob([msg.text]).size;
+      const htmlSize = new Blob([msg.html]).size;
+      return acc + subjectSize + textSize + htmlSize;
+    }, 0);
+    
+    // Konversi ke MB dengan 2 desimal
+    return Number((totalBytes / (1024 * 1024)).toFixed(2));
+  };
+
   const checkMessages = useCallback(async () => {
     try {
       setRefreshing(true);
@@ -124,6 +138,7 @@ export default function Home() {
       }
       lastMessageCountRef.current = newMessages.length;
       setMessages(newMessages);
+      setStorageSize(calculateStorageSize(newMessages));
     } catch (error) {
       console.error('Error checking messages:', error);
       showToast('Failed to refresh messages', 'error');
@@ -284,8 +299,8 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-4 text-center border border-sky-100 shadow-md"
               >
-                <h3 className="text-sm text-sky-600 mb-1">Storage</h3>
-                <p className="text-2xl font-semibold text-sky-700">0 MB</p>
+                <h3 className="text-sm text-sky-600 mb-1">Storage Used</h3>
+                <p className="text-2xl font-semibold text-sky-700">{storageSize} MB</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
