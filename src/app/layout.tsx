@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import AdSenseWrapper from '@/components/AdSenseWrapper';
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -95,6 +94,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* AdSense Script - Harus di paling atas */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8085996511215136" crossOrigin="anonymous"></script>
+        
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         <meta name="google-site-verification" content="googlea28ca0647bea5795" />
@@ -106,15 +108,6 @@ export default function RootLayout({
         <meta property="og:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <meta property="twitter:image" content="https://tempmail-alpha.vercel.app/images/og-image.webp" />
         <link rel="manifest" href="/manifest.json" />
-        
-        {/* AdSense Script */}
-        <Script
-          id="adsense-init"
-          strategy="afterInteractive"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8085996511215136"
-          crossOrigin="anonymous"
-        />
         
         {/* Schema.org markup */}
         <script
@@ -149,7 +142,6 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
-        <AdSenseWrapper />
       </body>
     </html>
   );
