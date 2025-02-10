@@ -146,11 +146,11 @@ export default function CountdownTimer({ expiryTime, onExpire }: CountdownTimerP
     <div className="py-2">
       <div className="flex flex-col items-center">
         <div className="flex items-center justify-center">
-          <TimeBlock value={timeLeft.hours} label="Jam" />
+          <TimeBlock value={timeLeft.hours} label="Hours" />
           <Separator />
-          <TimeBlock value={timeLeft.minutes} label="Menit" />
+          <TimeBlock value={timeLeft.minutes} label="Minutes" />
           <Separator />
-          <TimeBlock value={timeLeft.seconds} label="Detik" />
+          <TimeBlock value={timeLeft.seconds} label="Seconds" />
         </div>
 
         <motion.div 
@@ -168,7 +168,7 @@ export default function CountdownTimer({ expiryTime, onExpire }: CountdownTimerP
             repeatType: "reverse"
           }}
         >
-          {isWarning ? '⚠️ hampir habis!' : '💧 tersisa'}
+          {isWarning ? '⚠️ almost expired!' : '💧 remaining'}
         </motion.div>
       </div>
     </div>
