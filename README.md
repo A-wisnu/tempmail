@@ -113,8 +113,6 @@ If you like this project, please give it a star ⭐️
 
 ## 📧 Contact
 
-Wisnu - [@your_twitter](https://twitter.com/your_twitter)
-
 Project Link: [https://github.com/A-wisnu/tempmail](https://github.com/A-wisnu/tempmail)
 
 ---
