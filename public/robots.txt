@@ -1,10 +1,18 @@
-# https://tempmail.blogspot.com/robots.txt
+# https://tempmail-alpha.vercel.app/robots.txt
 # Allow crawling of all content
 User-agent: *
 Allow: /
 
+# Allow Google AdSense crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# Allow Google Mobile AdSense
+User-agent: Mediapartners-Google*
+Allow: /
+
 # Sitemap location
-Sitemap: https://tempmail.blogspot.com/sitemap.xml
+Sitemap: https://tempmail-alpha.vercel.app/sitemap.xml
 
 # Crawl-delay untuk bot
 Crawl-delay: 10
@@ -37,4 +45,7 @@ Allow: /robots.txt
 Allow: /manifest.json
 Allow: /*.js
 Allow: /*.css
-Allow: /images/ 
+Allow: /images/
+Allow: /favicon.ico
+Allow: /icon-192.png
+Allow: /icon-512.png 
